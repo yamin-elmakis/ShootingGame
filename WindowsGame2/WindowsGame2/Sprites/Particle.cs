@@ -39,23 +39,29 @@ namespace Game.Sprites
         public Vector2 Position;
         public float Scaling;
         public Color ModColor;
+        public bool IsAlive;
+        Random randomizer = new Random();
 
-        public Particle(Microsoft.Xna.Framework.Game game) : base(game)
+        public Particle(Microsoft.Xna.Framework.Game game, Vector2 explosionPos, float explosionSize, float maxAge, GameTime gameTime)
+            : base(game)
         {
             this.game = game;
-            //ballSprite = game.Content.Load<Texture2D>("eballs5");
-            //spriteBacth = (SpriteBatch) game.Services.GetService(typeof (SpriteBatch));
-            //soundCenter = (SoundCenter) game.Services.GetService(typeof (SoundCenter));
-            //_minY = Consts.GoalYline; // the sides of the game board
-            //_maxX = game.GraphicsDevice.Viewport.Width - ballSprite.Width / frames;
-            //_maxY = game.GraphicsDevice.Viewport.Height - ballSprite.Height - Consts.GoalYline;
-            //var width = ballSprite.Width/frames;
-            //Rectangles = new Rectangle[frames];
-            //for (var i = 0; i < frames; i++)
-            //    Rectangles[i] = new Rectangle(i*width, 0, width, ballSprite.Height);
-            //FramesPerSecond = 10;
-            //InitBallParam();
+            Scaling = 0.25f;
+            ModColor = Color.White;
 
+            BirthTime = (float)gameTime.TotalGameTime.TotalMilliseconds;
+            MaxAge = maxAge;
+            OrginalPosition = explosionPos;
+            Position = explosionPos;
+
+            float particleDistance = (float)randomizer.NextDouble() * explosionSize;
+            Vector2 displacement = new Vector2(particleDistance, 0);
+            float angle = MathHelper.ToRadians(randomizer.Next(360));
+            displacement = Vector2.Transform(displacement, Matrix.CreateRotationZ(angle));
+
+            Direction = displacement * 2.0f;
+            Accelaration = -Direction;
+            IsAlive = true;
         }
 
         protected override void Dispose(bool disposing)   {
@@ -64,9 +70,24 @@ namespace Game.Sprites
         }
 
         public override void Update(GameTime gameTime)   {
-           // ballPosition += ballSpeed * (float)gameTime.ElapsedGameTime.TotalSeconds;
-;
-            
+            float now = (float)gameTime.TotalGameTime.TotalMilliseconds;
+            float timeAlive = now - BirthTime;
+
+            if (timeAlive > MaxAge)
+                IsAlive = false;
+            else
+            {
+                float relAge = timeAlive / MaxAge;
+                Position = 0.5f * Accelaration * relAge * relAge + Direction * relAge + OrginalPosition;
+
+                float invAge = 1.0f - relAge;
+                ModColor = new Color(new Vector4(invAge, invAge, invAge, invAge));
+
+                Vector2 positionFromCenter = Position - OrginalPosition;
+                float distance = positionFromCenter.Length();
+                Scaling = (50.0f + distance) / 200.0f; 
+            }
+            base.Update(gameTime);
         }
 
         public int FramesPerSecond

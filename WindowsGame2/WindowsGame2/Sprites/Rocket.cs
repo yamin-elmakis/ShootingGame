@@ -52,13 +52,6 @@ namespace YaminGame.Sprites
 
         public override void Update(GameTime gameTime)
         {
-            //wallPosition += wallSpeed*(float) gameTime.ElapsedGameTime.TotalSeconds;
-            //var maxX = game.GraphicsDevice.Viewport.Width - wallSprite.Width;
-
-            //if (wallPosition.X > maxX || wallPosition.X < 0) wallSpeed.X *= -1;
-            
-            //wallRect = new Rectangle((int) wallPosition.X, (int) wallPosition.Y, wallSprite.Width, wallSprite.Height);
-
             if (rocketFlying)
             {
                 Vector2 gravity = new Vector2(0, 1);
@@ -80,6 +73,7 @@ namespace YaminGame.Sprites
                     smokeList = new List<Vector2>();
                 }
             }
+            base.Update(gameTime);
         }
 
         public override void Draw(GameTime gameTime)
@@ -103,19 +97,46 @@ namespace YaminGame.Sprites
             Matrix rocketMat = Matrix.CreateTranslation(-42, -240, 0) * Matrix.CreateRotationZ(rocketAngle) * Matrix.CreateScale(rocketScaling) * Matrix.CreateTranslation(rocketPosition.X, rocketPosition.Y, 0);
             Matrix terrainMat = Matrix.Identity;
             Vector2 terrainCollisionPoint = Utils.TexturesCollide(rocketColorArray, rocketMat, foregroundColorArray, terrainMat);
-            if (terrainCollisionPoint.X > -1)
-            {
-                rocketFlying = false;
-                smokeList = new List<Vector2>();
-                AddExplosion(terrainCollisionPoint, 4, 30.0f, 1000.0f, gameTime);
-            }
+            if (terrainCollisionPoint.X > -1)            
+                rocketHit();
+
             return terrainCollisionPoint;
         }
 
-        
+        public Vector2 CheckPlayersCollision(Carriage carriage)
+        {
+            Matrix rocketMat = Matrix.CreateTranslation(-42, -240, 0) * Matrix.CreateRotationZ(rocketAngle) * Matrix.CreateScale(rocketScaling) * Matrix.CreateTranslation(rocketPosition.X, rocketPosition.Y, 0);
+            int xPos = (int)carriage.Position.X;
+            int yPos = (int)carriage.Position.Y;
 
-        
+            Matrix carriageMat = Matrix.CreateTranslation(0, -carriage.carriageTexture.Height, 0) * Matrix.CreateScale(carriage.playerScaling) * Matrix.CreateTranslation(xPos, yPos, 0);
+            Vector2 carriageCollisionPoint = Utils.TexturesCollide(carriage.carriageColorArray, carriageMat, rocketColorArray, rocketMat);
 
-        
+            if (carriageCollisionPoint.X > -1)
+            {
+                rocketHit();
+                carriage.IsAlive = false;
+                return carriageCollisionPoint;
+            }
+
+            Matrix cannonMat = Matrix.CreateTranslation(-11, -50, 0) * Matrix.CreateRotationZ(carriage.Angle) * Matrix.CreateScale(carriage.playerScaling) * Matrix.CreateTranslation(xPos + 20, yPos - 10, 0);
+            Vector2 cannonCollisionPoint = Utils.TexturesCollide(carriage.cannonColorArray, cannonMat, rocketColorArray, rocketMat);
+            if (cannonCollisionPoint.X > -1)
+            {
+                rocketHit();
+                carriage.IsAlive = false;
+                return cannonCollisionPoint;
+            }
+
+            return new Vector2(-1, -1);
+        }
+
+        private void rocketHit()
+        {
+            rocketFlying = false;
+            smokeList = new List<Vector2>(); 
+        }
+
+
     }
 }

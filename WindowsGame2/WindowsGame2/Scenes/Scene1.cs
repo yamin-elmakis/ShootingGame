@@ -157,15 +157,16 @@ namespace Game.Scenes
                 Vector2 terrainCollisionPoint = _rocket.CheckTerrainCollision(gameTime, foregroundColorArray);
                 if (terrainCollisionPoint.X > -1)
                 {
-                    for (int i = 0; i < players.Length; i++)
-                        players[i].Position.Y = terrainContour[(int)players[i].Position.X];
-
-                    float rotation = (float)randomizer.Next(10);
-                    Matrix mat = Matrix.CreateTranslation(-explosionTexture.Width / 2, -explosionTexture.Height / 2, 0) * Matrix.CreateRotationZ(rotation) * Matrix.CreateScale(terrainExplosionSize / (float)explosionTexture.Width * 2.0f) * Matrix.CreateTranslation(terrainCollisionPoint.X, terrainCollisionPoint.Y, 0);
-                    AddCrater(explosionColorArray, mat);
-                    FlattenTerrainBelowPlayers();
-                    CreateForeground();
+                    AddExplosion(terrainCollisionPoint, terrainExplosionParticles, terrainExplosionSize, terrainExplosionMaxAge, gameTime);
                     soundCenter.HitTerrain.Play();
+                    NextPlayer();
+                }
+
+                Vector2 playerCollisionPoint = CheckPlayersCollision();
+                if (playerCollisionPoint.X > -1)
+                {
+                    AddExplosion(playerCollisionPoint, playerExplosionParticles, playerExplosionSize, playerExplosionMaxAge, gameTime);
+                    soundCenter.HitCannon.Play();
                     NextPlayer();
                 }
 
@@ -176,6 +177,42 @@ namespace Game.Scenes
             }
             
             base.Update(gameTime);
+        }
+
+        private void AddExplosion(Vector2 explosionPos, int numberOfParticles, float size, float maxAge, GameTime gameTime)
+        {
+            _explosion.AddExplosion(explosionPos, numberOfParticles, size, maxAge, gameTime);
+
+            float rotation = (float)randomizer.Next(10);
+            Matrix mat =
+                Matrix.CreateTranslation(-_explosion.explosionTexture.Width / 2,
+                    -_explosion.explosionTexture.Height / 2, 0) * Matrix.CreateRotationZ(rotation) *
+                Matrix.CreateScale(terrainExplosionSize / (float)_explosion.explosionTexture.Width * 2.0f) *
+                Matrix.CreateTranslation(explosionPos.X, explosionPos.Y, 0);
+            AddCrater(_explosion.explosionColorArray, mat);
+
+            for (int i = 0; i < players.Length; i++)
+                players[i].Position.Y = terrainContour[(int)players[i].Position.X];
+
+            FlattenTerrainBelowPlayers();
+            CreateForeground();
+        }
+
+
+        private Vector2 CheckPlayersCollision()
+        {
+            Vector2 playerCollisionPoint = new Vector2(-1, -1);
+            for (int index = 0; index < players.Length; index++)
+            {
+                Carriage carriage = players[index];
+                if (carriage.IsAlive && index != currentPlayer)
+                {
+                    playerCollisionPoint = _rocket.CheckPlayersCollision(carriage);
+                }
+                if (playerCollisionPoint.X > -1)
+                    break;
+            }
+            return playerCollisionPoint;
         }
 
         private void AddCrater(Color[,] tex, Matrix mat)

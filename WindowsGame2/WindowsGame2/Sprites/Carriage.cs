@@ -28,11 +28,11 @@ namespace Game.Sprites
         public float Angle;
         public float Power;
 
-        Texture2D carriageTexture;
-        Texture2D cannonTexture;
-        Color[,] carriageColorArray;
-        Color[,] cannonColorArray;
-        float playerScaling;
+        public Texture2D carriageTexture;
+        public Texture2D cannonTexture;
+        public Color[,] carriageColorArray;
+        public Color[,] cannonColorArray;
+        public float playerScaling;
 
         private static Color[] playerColors;
 

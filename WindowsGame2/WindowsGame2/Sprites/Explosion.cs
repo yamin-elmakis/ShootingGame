@@ -14,11 +14,10 @@ namespace YaminGame.Sprites
         Microsoft.Xna.Framework.Game game;
         protected SpriteBatch spriteBatch;
         protected SoundCenter soundCenter;
-        Texture2D explosionTexture;
-        Color[,] explosionColorArray;
+        public Texture2D explosionTexture;
+        public Color[,] explosionColorArray;
         public List<Particle> particleList = new List<Particle>();
-        Random randomizer = new Random();
-
+        
         public Explosion(Microsoft.Xna.Framework.Game game) : base(game)
         {
             this.game = game;
@@ -35,38 +34,25 @@ namespace YaminGame.Sprites
 
         public override void Update(GameTime gameTime)
         {
-            
+            for (int i = particleList.Count - 1; i >= 0; i--)
+            {
+                Particle particle = particleList[i];
+                if(!particle.IsAlive)
+                    particleList.RemoveAt(i);
+            }
+            base.Update(gameTime);
         }
 
-        private void AddExplosion(Vector2 explosionPos, int numberOfParticles, float size, float maxAge, GameTime gameTime)
+        public void AddExplosion(Vector2 explosionPos, int numberOfParticles, float size, float maxAge, GameTime gameTime)
         {
-            for (int i = 0; i < numberOfParticles; i++)
+            for (int i = 0; i < numberOfParticles; i++) 
                 AddExplosionParticle(explosionPos, size, maxAge, gameTime);
-
         }
 
         private void AddExplosionParticle(Vector2 explosionPos, float explosionSize, float maxAge, GameTime gameTime)
         {
-            Particle particle = new Particle(game);
-
-            particle.OrginalPosition = explosionPos;
-            particle.Position = particle.OrginalPosition;
-
-            particle.BirthTime = (float)gameTime.TotalGameTime.TotalMilliseconds;
-            particle.MaxAge = maxAge;
-            particle.Scaling = 0.25f;
-            particle.ModColor = Color.White;
-
-            float particleDistance = (float)randomizer.NextDouble() * explosionSize;
-            Vector2 displacement = new Vector2(particleDistance, 0);
-            float angle = MathHelper.ToRadians(randomizer.Next(360));
-            displacement = Vector2.Transform(displacement, Matrix.CreateRotationZ(angle));
-
-            particle.Direction = displacement * 2.0f;
-            particle.Accelaration = -particle.Direction;
-
+            Particle particle = new Particle(game, explosionPos, explosionSize, maxAge, gameTime);
             particleList.Add(particle);
-
         }
 
         public override void Draw(GameTime gameTime)
