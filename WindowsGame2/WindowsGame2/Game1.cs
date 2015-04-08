@@ -18,7 +18,7 @@ namespace WindowsGame2
         Scene2 scene2;
         SoundCenter soundCenter;
         SpriteFont font, bigFont;
-        private int screenWidth, screenHeight;
+        public static int screenWidth, screenHeight;
         
         /// <summary>
         /// new
@@ -43,27 +43,20 @@ namespace WindowsGame2
             base.Initialize();
         }
 
-        protected override void LoadContent()    {
+        protected override void LoadContent()
+        {
             spriteBatch = new SpriteBatch(GraphicsDevice);
             device = graphics.GraphicsDevice;
-            if (resultionIndependent)
-            {
-                screenWidth = (int)baseScreenSize.X;
-                screenHeight = (int)baseScreenSize.Y;
-            }
-            else
-            {
-                screenWidth = device.PresentationParameters.BackBufferWidth;
-                screenHeight = device.PresentationParameters.BackBufferHeight;
-            }
+            screenWidth = device.PresentationParameters.BackBufferWidth;
+            screenHeight = device.PresentationParameters.BackBufferHeight;
             soundCenter = new SoundCenter(this);
             font = Content.Load<SpriteFont>("MyFont");
-            Services.AddService(typeof(SpriteBatch), spriteBatch);
-            Services.AddService(typeof(SoundCenter), soundCenter);
-            Services.AddService(typeof(SpriteFont), font);
+            Services.AddService(typeof (SpriteBatch), spriteBatch);
+            Services.AddService(typeof (SoundCenter), soundCenter);
+            Services.AddService(typeof (SpriteFont), font);
             scene0 = new Scene0(this);
-            scene1 = new Scene1(this, screenWidth, screenHeight, device);
-            scene2 = new Scene2(this, screenWidth, screenHeight);
+            scene1 = new Scene1(this, device);
+            scene2 = new Scene2(this, device);
             scene2.Hide();
             scene1.Hide();
             scene0.Show();
@@ -71,6 +64,7 @@ namespace WindowsGame2
             Components.Add(scene1);
             Components.Add(scene2);
         }
+
         protected override void UnloadContent() { }
 
         protected override void Update(GameTime gameTime)

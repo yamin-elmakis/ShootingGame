@@ -17,8 +17,8 @@ namespace Game.Scenes
         private Rocket _rocket;
         private float timeElapsed, timeToUpdate = 0.2f;
 
-        public Scene2(Microsoft.Xna.Framework.Game game, int screenWidth, int screenHeight)
-            : base(game, screenWidth, screenHeight)
+        public Scene2(Microsoft.Xna.Framework.Game game, GraphicsDevice device)
+            : base(game, device)
         {
             //this.game = game;
             //this.screenHeight = screenHeight;

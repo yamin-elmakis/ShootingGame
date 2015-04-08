@@ -43,24 +43,19 @@ namespace Game.Sprites
         public Particle(Microsoft.Xna.Framework.Game game) : base(game)
         {
             this.game = game;
-            ballSprite = game.Content.Load<Texture2D>("eballs5");
-            spriteBacth = (SpriteBatch) game.Services.GetService(typeof (SpriteBatch));
-            soundCenter = (SoundCenter) game.Services.GetService(typeof (SoundCenter));
-            _minY = Consts.GoalYline; // the sides of the game board
-            _maxX = game.GraphicsDevice.Viewport.Width - ballSprite.Width / frames;
-            _maxY = game.GraphicsDevice.Viewport.Height - ballSprite.Height - Consts.GoalYline;
-            var width = ballSprite.Width/frames;
+            //ballSprite = game.Content.Load<Texture2D>("eballs5");
+            //spriteBacth = (SpriteBatch) game.Services.GetService(typeof (SpriteBatch));
+            //soundCenter = (SoundCenter) game.Services.GetService(typeof (SoundCenter));
+            //_minY = Consts.GoalYline; // the sides of the game board
+            //_maxX = game.GraphicsDevice.Viewport.Width - ballSprite.Width / frames;
+            //_maxY = game.GraphicsDevice.Viewport.Height - ballSprite.Height - Consts.GoalYline;
+            //var width = ballSprite.Width/frames;
             //Rectangles = new Rectangle[frames];
             //for (var i = 0; i < frames; i++)
             //    Rectangles[i] = new Rectangle(i*width, 0, width, ballSprite.Height);
             //FramesPerSecond = 10;
             //InitBallParam();
-        }
 
-        public void SetFrame(int frame)
-        {
-            //if (frame < Rectangles.Length)
-            //    FrameIndex = frame;
         }
 
         protected override void Dispose(bool disposing)   {
