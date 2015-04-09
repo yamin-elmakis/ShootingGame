@@ -120,6 +120,7 @@
     <Compile Include="Sprites\Rocket.cs" />
     <Compile Include="Utilities\Consts.cs" />
     <Compile Include="Utilities\SoundCenter.cs" />
+    <Compile Include="Utilities\TextureCenter.cs" />
     <Compile Include="Utilities\Utils.cs" />
   </ItemGroup>
   <ItemGroup>

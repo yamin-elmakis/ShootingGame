@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WindowsGame2;
 using Game.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -51,7 +52,9 @@ namespace YaminGame.Scenes
 
         public override void Draw(GameTime gameTime)
         {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             spriteBatch.DrawString(font, Consts.GameHelp, new Vector2(5, 5), Color.Red);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

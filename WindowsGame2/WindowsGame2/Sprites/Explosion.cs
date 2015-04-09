@@ -33,8 +33,12 @@ namespace YaminGame.Sprites
             for (int i = particleList.Count - 1; i >= 0; i--)
             {
                 Particle particle = particleList[i];
-                if(!particle.IsAlive)
+                if (!particle.IsAlive)
+                {
                     particleList.RemoveAt(i);
+                    particle.Dispose();
+                }
+                    
             }
             base.Update(gameTime);
         }

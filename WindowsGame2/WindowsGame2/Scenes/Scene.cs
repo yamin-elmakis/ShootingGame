@@ -25,10 +25,12 @@ namespace Game.Scenes
             Enabled = false;
             Visible = false;
         }
+
         public void Pause(){
             Enabled = false;
             Visible = true;
         }
+
         public override void Update(GameTime gameTime)
         {
             foreach (var component in SceneComponents.Where(component => component.Enabled))

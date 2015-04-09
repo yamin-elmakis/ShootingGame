@@ -17,6 +17,7 @@ namespace WindowsGame2
         Scene1 scene1;
         Scene2 scene2;
         SoundCenter soundCenter;
+        private TextureCenter TextureCenter;
         SpriteFont font, bigFont;
         public static int screenWidth, screenHeight;
         
@@ -51,10 +52,12 @@ namespace WindowsGame2
             screenWidth = device.PresentationParameters.BackBufferWidth;
             screenHeight = device.PresentationParameters.BackBufferHeight;
             soundCenter = new SoundCenter(this);
+            TextureCenter = new TextureCenter(this);
             font = Content.Load<SpriteFont>("MyFont");
             Services.AddService(typeof (SpriteBatch), spriteBatch);
             Services.AddService(typeof (SoundCenter), soundCenter);
             Services.AddService(typeof (SpriteFont), font);
+            Services.AddService(typeof(TextureCenter), TextureCenter);
             scene0 = new Scene0(this);
             scene1 = new Scene1(this, device);
             scene2 = new Scene2(this, device);

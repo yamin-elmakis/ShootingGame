@@ -35,13 +35,10 @@ namespace Game.Scenes
         private Carriage[] players;
         private Explosion _explosion;
         GraphicsDevice device;
-        Texture2D groundTexture;
-        
         private float playerExplosionSize = 80.0f, playerExplosionMaxAge = 2000.0f, terrainExplosionSize = 30.0f, terrainExplosionMaxAge = 1000.0f;
         private int playerExplosionParticles = 10, terrainExplosionParticles = 4;
-        Texture2D backgroundTexture;
-        Texture2D foregroundTexture;
-        Color[,] foregroundColorArray;
+        private TextureCenter _textureCenter;
+        
         int numberOfPlayers = 4;
         int currentPlayer = 0;
         int[] terrainContour;
@@ -53,9 +50,8 @@ namespace Game.Scenes
         {
             this.game = game;
             this.device = device;
-            backgroundTexture = game.Content.Load<Texture2D>("background");
-            groundTexture = game.Content.Load<Texture2D>("ground");
             
+            _textureCenter = (TextureCenter)game.Services.GetService(typeof(TextureCenter));
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
             soundCenter = (SoundCenter)game.Services.GetService(typeof(SoundCenter));
             font = (SpriteFont)game.Services.GetService(typeof(SpriteFont));
@@ -63,12 +59,12 @@ namespace Game.Scenes
             _explosion = new Explosion(game);
             SceneComponents.Add(_explosion);
             SceneComponents.Add(_rocket);
+            GenerateTerrainContour();
+            SetUpPlayers();
             foreach (var carriage in players)
             {
                 SceneComponents.Add(carriage);   
             }
-            GenerateTerrainContour();
-            SetUpPlayers();
             FlattenTerrainBelowPlayers();
             CreateForeground();
         }
@@ -117,7 +113,7 @@ namespace Game.Scenes
 
         private void CreateForeground()
         {
-            Color[,] groundColors = Utils.TextureTo2DArray(groundTexture);
+            Color[,] groundColors = Utils.TextureTo2DArray(_textureCenter.groundTexture);
             Color[] foregroundColors = new Color[Game1.screenWidth * Game1.screenHeight];
 
             for (int x = 0; x < Game1.screenWidth; x++)
@@ -125,16 +121,16 @@ namespace Game.Scenes
                 for (int y = 0; y < Game1.screenHeight; y++)
                 {
                     if (y > terrainContour[x])
-                        foregroundColors[x + y * Game1.screenWidth] = groundColors[x % groundTexture.Width, y % groundTexture.Height];
+                        foregroundColors[x + y * Game1.screenWidth] = groundColors[x % _textureCenter.groundTexture.Width, y % _textureCenter.groundTexture.Height];
                     else
                         foregroundColors[x + y * Game1.screenWidth] = Color.Transparent;
                 }
             }
 
-            foregroundTexture = new Texture2D(device, Game1.screenWidth, Game1.screenHeight, false, SurfaceFormat.Color);
-            foregroundTexture.SetData(foregroundColors);
+            _textureCenter.foregroundTexture = new Texture2D(device, Game1.screenWidth, Game1.screenHeight, false, SurfaceFormat.Color);
+            _textureCenter.foregroundTexture.SetData(foregroundColors);
 
-            foregroundColorArray = Utils.TextureTo2DArray(foregroundTexture);
+            _textureCenter.foregroundColorArray = Utils.TextureTo2DArray(_textureCenter.foregroundTexture);
         }
 
         public override void Update(GameTime gameTime)
@@ -154,7 +150,7 @@ namespace Game.Scenes
 
             if (Rocket.rocketFlying)
             {
-                Vector2 terrainCollisionPoint = _rocket.CheckTerrainCollision(gameTime, foregroundColorArray);
+                Vector2 terrainCollisionPoint = _rocket.CheckTerrainCollision(gameTime, _textureCenter.foregroundColorArray);
                 if (terrainCollisionPoint.X > -1)
                 {
                     AddExplosion(terrainCollisionPoint, terrainExplosionParticles, terrainExplosionSize, terrainExplosionMaxAge, gameTime);
@@ -185,11 +181,11 @@ namespace Game.Scenes
 
             float rotation = (float)randomizer.Next(10);
             Matrix mat =
-                Matrix.CreateTranslation(-_explosion.explosionTexture.Width / 2,
-                    -_explosion.explosionTexture.Height / 2, 0) * Matrix.CreateRotationZ(rotation) *
-                Matrix.CreateScale(terrainExplosionSize / (float)_explosion.explosionTexture.Width * 2.0f) *
+                Matrix.CreateTranslation(-_textureCenter.explosionTexture.Width / 2,
+                    -_textureCenter.explosionTexture.Height / 2, 0) * Matrix.CreateRotationZ(rotation) *
+                Matrix.CreateScale(terrainExplosionSize / (float)_textureCenter.explosionTexture.Width * 2.0f) *
                 Matrix.CreateTranslation(explosionPos.X, explosionPos.Y, 0);
-            AddCrater(_explosion.explosionColorArray, mat);
+            AddCrater(_textureCenter.explosionColorArray, mat);
 
             for (int i = 0; i < players.Length; i++)
                 players[i].Position.Y = terrainContour[(int)players[i].Position.X];
@@ -316,8 +312,8 @@ namespace Game.Scenes
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             var screenRectangle = new Rectangle(0, 0, Game1.screenWidth, Game1.screenHeight);
             // Draw Scenery
-            spriteBatch.Draw(backgroundTexture, screenRectangle, Color.White);
-            spriteBatch.Draw(foregroundTexture, screenRectangle, Color.White);
+            spriteBatch.Draw(_textureCenter.backgroundTexture, screenRectangle, Color.White);
+            spriteBatch.Draw(_textureCenter.foregroundTexture, screenRectangle, Color.White);
             DrawText();
 
             if (endScene)

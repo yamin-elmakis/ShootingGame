@@ -18,12 +18,10 @@ namespace YaminGame.Sprites
         private Microsoft.Xna.Framework.Game game;
         private SpriteBatch spriteBatch;
         private SoundCenter soundCenter;
+        private TextureCenter _textureCenter;
         
         public Color Color { get; set; }
 
-        Texture2D rocketTexture;
-        Texture2D smokeTexture;
-        
         public static bool rocketFlying = false;
         public Vector2 rocketPosition;
         public Vector2 rocketDirection;
@@ -31,16 +29,11 @@ namespace YaminGame.Sprites
         float rocketScaling = 0.1f;
         public List<Vector2> smokeList = new List<Vector2>(); 
         Random randomizer = new Random();
-        Color[,] rocketColorArray;
         
-
-        public Rocket(Microsoft.Xna.Framework.Game game)
-            : base(game)
+        public Rocket(Microsoft.Xna.Framework.Game game): base(game)
         {
             this.game = game;
-            rocketTexture = game.Content.Load<Texture2D>("rocket");
-            smokeTexture = game.Content.Load<Texture2D>("smoke");
-            rocketColorArray = Utils.TextureTo2DArray(rocketTexture);
+            _textureCenter = (TextureCenter)game.Services.GetService(typeof(TextureCenter));
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
             soundCenter = (SoundCenter) game.Services.GetService(typeof (SoundCenter));
         }
@@ -89,7 +82,7 @@ namespace YaminGame.Sprites
         {
             Matrix rocketMat = Matrix.CreateTranslation(-42, -240, 0) * Matrix.CreateRotationZ(rocketAngle) * Matrix.CreateScale(rocketScaling) * Matrix.CreateTranslation(rocketPosition.X, rocketPosition.Y, 0);
             Matrix terrainMat = Matrix.Identity;
-            Vector2 terrainCollisionPoint = Utils.TexturesCollide(rocketColorArray, rocketMat, foregroundColorArray, terrainMat);
+            Vector2 terrainCollisionPoint = Utils.TexturesCollide(_textureCenter.rocketColorArray, rocketMat, foregroundColorArray, terrainMat);
             if (terrainCollisionPoint.X > -1)            
                 rocketHit();
 
@@ -102,8 +95,8 @@ namespace YaminGame.Sprites
             int xPos = (int)carriage.Position.X;
             int yPos = (int)carriage.Position.Y;
 
-            Matrix carriageMat = Matrix.CreateTranslation(0, -carriage.carriageTexture.Height, 0) * Matrix.CreateScale(carriage.playerScaling) * Matrix.CreateTranslation(xPos, yPos, 0);
-            Vector2 carriageCollisionPoint = Utils.TexturesCollide(carriage.carriageColorArray, carriageMat, rocketColorArray, rocketMat);
+            Matrix carriageMat = Matrix.CreateTranslation(0, -_textureCenter.carriageTexture.Height, 0) * Matrix.CreateScale(carriage.playerScaling) * Matrix.CreateTranslation(xPos, yPos, 0);
+            Vector2 carriageCollisionPoint = Utils.TexturesCollide(_textureCenter.carriageColorArray, carriageMat, _textureCenter.rocketColorArray, rocketMat);
 
             if (carriageCollisionPoint.X > -1)
             {
@@ -113,7 +106,7 @@ namespace YaminGame.Sprites
             }
 
             Matrix cannonMat = Matrix.CreateTranslation(-11, -50, 0) * Matrix.CreateRotationZ(carriage.Angle) * Matrix.CreateScale(carriage.playerScaling) * Matrix.CreateTranslation(xPos + 20, yPos - 10, 0);
-            Vector2 cannonCollisionPoint = Utils.TexturesCollide(carriage.cannonColorArray, cannonMat, rocketColorArray, rocketMat);
+            Vector2 cannonCollisionPoint = Utils.TexturesCollide(_textureCenter.cannonColorArray, cannonMat, _textureCenter.rocketColorArray, rocketMat);
             if (cannonCollisionPoint.X > -1)
             {
                 rocketHit();
@@ -134,9 +127,9 @@ namespace YaminGame.Sprites
         {
             spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             if (rocketFlying)
-                spriteBatch.Draw(rocketTexture, rocketPosition, null, Color, rocketAngle, new Vector2(42, 240), 0.1f, SpriteEffects.None, 1);
+                spriteBatch.Draw(_textureCenter.rocketTexture, rocketPosition, null, Color, rocketAngle, new Vector2(42, 240), 0.1f, SpriteEffects.None, 1);
             foreach (Vector2 smokePos in smokeList)
-                spriteBatch.Draw(smokeTexture, smokePos, null, Color.White, 0, new Vector2(40, 35), 0.2f, SpriteEffects.None, 1);
+                spriteBatch.Draw(_textureCenter.smokeTexture, smokePos, null, Color.White, 0, new Vector2(40, 35), 0.2f, SpriteEffects.None, 1);
 
             spriteBatch.End();
             base.Draw(gameTime);

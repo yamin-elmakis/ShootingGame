@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using WindowsGame2;
 using Game.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -38,16 +39,7 @@ namespace Game.Scenes
             timeElapsed += (float)
                 gameTime.ElapsedGameTime.TotalSeconds;
             Debug.WriteLine("time: " + timeElapsed);
-            if (Particle.ballRect.Intersects(_rocket.wallRect) && !_rocket.IsIntersects)
-            {
-                _rocket.IsIntersects = true;
-                MediaPlayer.Play(soundCenter.Whip);
-                Particle.ballSpeed.Y *= -1;
-            }
-            if (_rocket.IsIntersects && !Particle.ballRect.Intersects(_rocket.wallRect))
-            {
-                _rocket.IsIntersects = false;
-            }
+            
             base.Update(gameTime);
         }
 
@@ -59,8 +51,10 @@ namespace Game.Scenes
 
         public override void Draw(GameTime gameTime)
         {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             //var screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
             //spriteBatch.Draw(back, screenRectangle, Color.White);
+            spriteBatch.End();
             base.Draw(gameTime);
         }
     }

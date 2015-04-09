@@ -29,11 +29,8 @@ namespace Game.Sprites
         public float Angle;
         public float Power;
 
-        public Texture2D carriageTexture;
-        public Texture2D cannonTexture;
-        public Color[,] carriageColorArray;
-        public Color[,] cannonColorArray;
         public float playerScaling;
+        private TextureCenter _textureCenter;
 
         private static Color[] playerColors;
 
@@ -56,12 +53,9 @@ namespace Game.Sprites
         {
             this.game = game;
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
+            _textureCenter = (TextureCenter)game.Services.GetService(typeof (TextureCenter));
 
-            carriageTexture = game.Content.Load<Texture2D>("carriage");
-            cannonTexture = game.Content.Load<Texture2D>("cannon");
-            carriageColorArray = Utils.TextureTo2DArray(carriageTexture);
-            cannonColorArray = Utils.TextureTo2DArray(cannonTexture);
-            playerScaling = 40.0f / (float)carriageTexture.Width;
+            playerScaling = 40.0f / (float)_textureCenter.carriageTexture.Width;
             InitCarriage(i);
 
             game.IsMouseVisible = true;
@@ -106,8 +100,8 @@ namespace Game.Sprites
                 int yPos = (int)Position.Y;
                 Vector2 cannonOrigin = new Vector2(11, 50);
 
-                spriteBatch.Draw(cannonTexture, new Vector2(xPos + 20, yPos - 10), null, Color, Angle, cannonOrigin, playerScaling, SpriteEffects.None, 1);
-                spriteBatch.Draw(carriageTexture, Position, null, Color, 0, new Vector2(0, carriageTexture.Height), playerScaling, SpriteEffects.None, 0);
+                spriteBatch.Draw(_textureCenter.cannonTexture, new Vector2(xPos + 20, yPos - 10), null, Color, Angle, cannonOrigin, playerScaling, SpriteEffects.None, 1);
+                spriteBatch.Draw(_textureCenter.carriageTexture, Position, null, Color, 0, new Vector2(0, _textureCenter.carriageTexture.Height), playerScaling, SpriteEffects.None, 0);
             }
             spriteBatch.End();
             base.Draw(gameTime);
