@@ -25,6 +25,7 @@ namespace WindowsGame2
         /// </summary>
         GraphicsDevice device;
         const bool resultionIndependent = false;
+        public static Matrix globalTransformation = Matrix.CreateScale(new Vector3(1, 1, 1));
 
         public Game1()
         {
@@ -96,9 +97,12 @@ namespace WindowsGame2
         protected override void Draw(GameTime gameTime)
         {
             GraphicsDevice.Clear(Color.CornflowerBlue);
-            spriteBatch.Begin();
+            
+            //spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, globalTransformation);
+
+            //spriteBatch.End();
             base.Draw(gameTime);
-            spriteBatch.End();
+            
         }
     }
 }

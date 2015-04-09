@@ -25,9 +25,8 @@ namespace Game.Sprites
 
         private int frames = 5;
         protected Rectangle[] Rectangles;
-        protected int FrameIndex = 0;
-        private float timeToUpdate = 0.05f;
-
+        
+        SpriteBatch spriteBatch;
         /// <summary>
         /// new
         /// </summary>
@@ -40,15 +39,21 @@ namespace Game.Sprites
         public float Scaling;
         public Color ModColor;
         public bool IsAlive;
+        protected int rotation = 1;
         Random randomizer = new Random();
+        public Texture2D explosionTexture;
+        public Color[,] explosionColorArray;
 
-        public Particle(Microsoft.Xna.Framework.Game game, Vector2 explosionPos, float explosionSize, float maxAge, GameTime gameTime)
+        public Particle(Microsoft.Xna.Framework.Game game, Vector2 explosionPos, float explosionSize, float maxAge, int rotation, GameTime gameTime)
             : base(game)
         {
             this.game = game;
+            spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
+            explosionTexture = game.Content.Load<Texture2D>("explosion");
+            explosionColorArray = Utils.TextureTo2DArray(explosionTexture);
             Scaling = 0.25f;
             ModColor = Color.White;
-
+            this.rotation = rotation;
             BirthTime = (float)gameTime.TotalGameTime.TotalMilliseconds;
             MaxAge = maxAge;
             OrginalPosition = explosionPos;
@@ -90,13 +95,9 @@ namespace Game.Sprites
             base.Update(gameTime);
         }
 
-        public int FramesPerSecond
-        {
-            set { timeToUpdate = (1f / value); }
-        }
-
         public override void Draw(GameTime gameTime)
         {
+            spriteBatch.Draw(explosionTexture, Position, null, ModColor, rotation, new Vector2(256, 256), Scaling, SpriteEffects.None, 1);
             //spriteBacth.Draw(Particle, ballPosition, Rectangles[FrameIndex],
             //    ballColor, Rotation, Origin, Scale, SpriteEffect, 0f);
             base.Draw(gameTime);

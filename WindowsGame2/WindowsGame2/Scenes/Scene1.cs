@@ -313,15 +313,27 @@ namespace Game.Scenes
 
         public override void Draw(GameTime gameTime)
         {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             var screenRectangle = new Rectangle(0, 0, Game1.screenWidth, Game1.screenHeight);
+            // Draw Scenery
             spriteBatch.Draw(backgroundTexture, screenRectangle, Color.White);
-            spriteBatch.DrawString(font, "P1 Score:" + P1Score + "   P2 Score:" + P2Score, new Vector2(5, 5), Color.Red);   
-            base.Draw(gameTime);
+            spriteBatch.Draw(foregroundTexture, screenRectangle, Color.White);
+            DrawText();
+
             if (endScene)
             {
                 spriteBatch.DrawString(font, endText, new Vector2(Game1.screenWidth / 2, Game1.screenHeight / 2), Color.Blue, 0, textSize, 2.0f, SpriteEffects.None, 0.5f);
             }
+            spriteBatch.End();
+            base.Draw(gameTime);
         }
 
+        private void DrawText()
+        {
+            Carriage player = players[currentPlayer];
+            int currentAngle = (int)MathHelper.ToDegrees(player.Angle);
+            spriteBatch.DrawString(font, "Cannon angle: " + currentAngle.ToString(), new Vector2(20, 20), player.Color);
+            spriteBatch.DrawString(font, "Cannon power: " + player.Power.ToString(), new Vector2(20, 45), player.Color);
+        }
     }
 }

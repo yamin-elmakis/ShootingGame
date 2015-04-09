@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WindowsGame2;
 using Game.Scenes;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -58,8 +59,8 @@ namespace Game.Sprites
 
             carriageTexture = game.Content.Load<Texture2D>("carriage");
             cannonTexture = game.Content.Load<Texture2D>("cannon");
-            carriageColorArray = Scene1.TextureTo2DArray(carriageTexture);
-            cannonColorArray = Scene1.TextureTo2DArray(cannonTexture);
+            carriageColorArray = Utils.TextureTo2DArray(carriageTexture);
+            cannonColorArray = Utils.TextureTo2DArray(cannonTexture);
             playerScaling = 40.0f / (float)carriageTexture.Width;
             InitCarriage(i);
 
@@ -98,8 +99,19 @@ namespace Game.Sprites
         }
         public override void Draw(GameTime gameTime)
         {
-            //spriteBatch.Draw(playerSprite, playerPosition, Color.White);
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
+            if (IsAlive)
+            {
+                int xPos = (int)Position.X;
+                int yPos = (int)Position.Y;
+                Vector2 cannonOrigin = new Vector2(11, 50);
+
+                spriteBatch.Draw(cannonTexture, new Vector2(xPos + 20, yPos - 10), null, Color, Angle, cannonOrigin, playerScaling, SpriteEffects.None, 1);
+                spriteBatch.Draw(carriageTexture, Position, null, Color, 0, new Vector2(0, carriageTexture.Height), playerScaling, SpriteEffects.None, 0);
+            }
+            spriteBatch.End();
             base.Draw(gameTime);
         }
+
     }
 }

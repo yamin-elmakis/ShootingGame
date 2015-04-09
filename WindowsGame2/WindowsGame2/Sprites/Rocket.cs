@@ -16,7 +16,7 @@ namespace YaminGame.Sprites
     internal class Rocket : DrawableGameComponent
     {
         private Microsoft.Xna.Framework.Game game;
-        private SpriteBatch spriteBacth;
+        private SpriteBatch spriteBatch;
         private SoundCenter soundCenter;
         
         public Color Color { get; set; }
@@ -41,7 +41,7 @@ namespace YaminGame.Sprites
             rocketTexture = game.Content.Load<Texture2D>("rocket");
             smokeTexture = game.Content.Load<Texture2D>("smoke");
             rocketColorArray = Utils.TextureTo2DArray(rocketTexture);
-            spriteBacth = (SpriteBatch) game.Services.GetService(typeof (SpriteBatch));
+            spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
             soundCenter = (SoundCenter) game.Services.GetService(typeof (SoundCenter));
         }
 
@@ -74,13 +74,6 @@ namespace YaminGame.Sprites
                 }
             }
             base.Update(gameTime);
-        }
-
-        public override void Draw(GameTime gameTime)
-        {
-            if (rocketFlying)
-                spriteBacth.Draw(rocketTexture, rocketPosition, null, Color, rocketAngle, new Vector2(42, 240), 0.1f, SpriteEffects.None, 1);
-            base.Draw(gameTime);
         }
 
         public bool CheckOutOfScreen()
@@ -137,6 +130,16 @@ namespace YaminGame.Sprites
             smokeList = new List<Vector2>(); 
         }
 
+        public override void Draw(GameTime gameTime)
+        {
+            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
+            if (rocketFlying)
+                spriteBatch.Draw(rocketTexture, rocketPosition, null, Color, rocketAngle, new Vector2(42, 240), 0.1f, SpriteEffects.None, 1);
+            foreach (Vector2 smokePos in smokeList)
+                spriteBatch.Draw(smokeTexture, smokePos, null, Color.White, 0, new Vector2(40, 35), 0.2f, SpriteEffects.None, 1);
 
+            spriteBatch.End();
+            base.Draw(gameTime);
+        }
     }
 }

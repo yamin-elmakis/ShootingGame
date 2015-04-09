@@ -2,6 +2,7 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+using WindowsGame2;
 using Game.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
@@ -13,18 +14,13 @@ namespace YaminGame.Sprites
     {
         Microsoft.Xna.Framework.Game game;
         protected SpriteBatch spriteBatch;
-        protected SoundCenter soundCenter;
-        public Texture2D explosionTexture;
-        public Color[,] explosionColorArray;
+        
         public List<Particle> particleList = new List<Particle>();
         
         public Explosion(Microsoft.Xna.Framework.Game game) : base(game)
         {
             this.game = game;
             spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
-            soundCenter = (SoundCenter)game.Services.GetService(typeof(SoundCenter));
-            explosionTexture = game.Content.Load<Texture2D>("explosion");
-            explosionColorArray = Utils.TextureTo2DArray(explosionTexture);
         }
 
         protected override void Dispose(bool disposing)
@@ -45,24 +41,22 @@ namespace YaminGame.Sprites
 
         public void AddExplosion(Vector2 explosionPos, int numberOfParticles, float size, float maxAge, GameTime gameTime)
         {
-            for (int i = 0; i < numberOfParticles; i++) 
-                AddExplosionParticle(explosionPos, size, maxAge, gameTime);
-        }
-
-        private void AddExplosionParticle(Vector2 explosionPos, float explosionSize, float maxAge, GameTime gameTime)
-        {
-            Particle particle = new Particle(game, explosionPos, explosionSize, maxAge, gameTime);
-            particleList.Add(particle);
+            for (int i = 0; i < numberOfParticles; i++)
+            {
+                Particle particle = new Particle(game, explosionPos, size, maxAge, i, gameTime);
+                particleList.Add(particle);
+            }
         }
 
         public override void Draw(GameTime gameTime)
         {
-            //spriteBacth.Draw(Particle, ballPosition, Rectangles[FrameIndex],
-            //    ballColor, Rotation, Origin, Scale, SpriteEffect, 0f);
+            spriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, null, null, null, null, Game1.globalTransformation);
             foreach (var particle in particleList)
             {
                 particle.Draw(gameTime);
             }
+            spriteBatch.End();
+            
             base.Draw(gameTime);
         }
 
