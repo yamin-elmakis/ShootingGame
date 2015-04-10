@@ -60,13 +60,13 @@ namespace WindowsGame2
             Services.AddService(typeof(TextureCenter), TextureCenter);
             scene0 = new Scene0(this);
             scene1 = new Scene1(this, device);
-            scene2 = new Scene2(this, device);
-            scene2.Hide();
+            //scene2 = new Scene2(this, device);
+            //scene2.Hide();
             scene1.Hide();
             scene0.Show();
             Components.Add(scene0);
             Components.Add(scene1);
-            Components.Add(scene2);
+            //Components.Add(scene2);
         }
 
         protected override void UnloadContent() { }
@@ -76,22 +76,24 @@ namespace WindowsGame2
             if (GamePad.GetState(PlayerIndex.One).Buttons.Back == ButtonState.Pressed)
                 this.Exit();
            
-            switch (scene0.State + scene1.State + scene2.State)
+            switch (scene0.State + scene1.State)
             {
                 case 0:
                     scene0.Show();
                     scene1.Hide();
-                    scene2.Hide();
+                    //scene2.Hide();
                     break;
                 case 1:
                     scene0.Hide();
                     scene1.Show();
-                    scene2.Hide();
+                    //scene2.Hide();
                     break;
                 case 2:
                     scene0.Hide();
                     scene1.Hide();
+                    scene2 = new Scene2(this, device);
                     scene2.Show();
+                    Components.Add(scene2);
                     break;
             }
             base.Update(gameTime);

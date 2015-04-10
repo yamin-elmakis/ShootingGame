@@ -33,11 +33,6 @@ namespace YaminGame.Scenes
         {
             var keyState = Keyboard.GetState();
             
-            if (keyState.IsKeyDown(Keys.Right))
-            {
-                
-            }
-
             if (keyState.IsKeyDown(Keys.Enter))
             {
                 State = 1;

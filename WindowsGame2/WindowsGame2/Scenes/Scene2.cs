@@ -8,6 +8,7 @@ using Game.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Media;
+using YaminGame.Scenes;
 using YaminGame.Sprites;
 using YaminGame.Utilities;
 
@@ -51,10 +52,10 @@ namespace Game.Scenes
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
+            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
             //var screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
             //spriteBatch.Draw(back, screenRectangle, Color.White);
-            spriteBatch.End();
+            SpriteBatch.End();
             base.Draw(gameTime);
         }
     }
