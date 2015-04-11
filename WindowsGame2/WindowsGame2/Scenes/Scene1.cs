@@ -13,37 +13,38 @@ namespace YaminGame.Scenes
 {
     public class Scene1 : Scene
     {
-        protected Microsoft.Xna.Framework.Game game;
+        public override int State { get; set; }
+        public int CurrentPlayer = 0;
+        
         protected SpriteBatch SpriteBatch;
         protected SoundCenter SoundCenter;
         protected SpriteFont Font;
-        private bool _endScene, test = true;
+        protected bool NewRound = true;
+        protected Rocket _rocket;
+        protected Carriage[] _carriages;
+        protected GraphicsDevice Device;
+
+        private readonly Microsoft.Xna.Framework.Game _game;
+        private bool _endScene;
         private string _endText = "END Scene1";
-        private float timeElapsed, timeToUpdate = 1f;
+        private float _timeElapsed;
+        private const float TimeToUpdate = 1.2f;
         private Vector2 _textSize;
-
-        public override int State { get; set; }
-
-        /// <summary>
-        /// new
-        /// </summary>
-        private readonly Rocket _rocket;
-        private Carriage[] _carriages;
         private Bird[] _birds;
         private readonly Explosion _explosion;
-        protected GraphicsDevice Device;
-        private float playerExplosionSize = 80.0f, playerExplosionMaxAge = 2000.0f, terrainExplosionSize = 30.0f, terrainExplosionMaxAge = 1000.0f;
-        private int playerExplosionParticles = 10, terrainExplosionParticles = 4;
+        private float playerExplosionSize = 80.0f, playerExplosionMaxAge = 2000.0f;
+        private float terrainExplosionSize = 30.0f, terrainExplosionMaxAge = 1000.0f;
+        private float birdExplosionSize = 20.0f, birdExplosionMaxAge = 900.0f;
+        private int playerExplosionParticles = 10, terrainExplosionParticles = 5, birdExplosionParticles = 4;
         private readonly TextureCenter _textureCenter;
-
-        private const int NumberOfPlayers = 5;
-        public int CurrentPlayer = 0;
-        int[] _terrainContour;
+        private double _snowHeight;
+        private int NumberOfPlayers = 3;
+        private int[] _terrainContour;
         private readonly Random _randomizer = new Random();
 
         public Scene1(Microsoft.Xna.Framework.Game game, GraphicsDevice device): base(game)
         {
-            this.game = game;
+            _game = game;
             Device = device;
             
             _textureCenter = (TextureCenter)game.Services.GetService(typeof(TextureCenter));
@@ -69,29 +70,39 @@ namespace YaminGame.Scenes
             }
             FlattenTerrainBelowPlayers();
             CreateForeground();
-            //Debug.WriteLine("Scene1 constarcot end!");
+            Debug.WriteLine("Scene1 constarcot end!");
         }
 
         private void GenerateTerrainContour()
         {
-            _terrainContour = new int[Game1.screenWidth];
+            _terrainContour = new int[Game1.ScreenWidth];
 
-            double rand1 = _randomizer.NextDouble() + 1;
-            double rand2 = _randomizer.NextDouble() + 2;
-            double rand3 = _randomizer.NextDouble() + 3;
+            var rand1 = _randomizer.NextDouble() + 1;
+            var rand2 = _randomizer.NextDouble() + 2;
+            var rand3 = _randomizer.NextDouble() + 3;
 
-            float offset = Game1.screenHeight / 2;
-            float peakheight = 100;
-            float flatness = 70;
+            float offset = Game1.ScreenHeight / 2;
+            const float peakheight = 100;
+            const float flatness = 70;
+            double minHeight = Game1.ScreenHeight;
 
-            for (int x = 0; x < Game1.screenWidth; x++)
+            for (var x = 0; x < Game1.ScreenWidth; x++)
             {
-                double height = peakheight / rand1 * Math.Sin((float)x / flatness * rand1 + rand1);
+                var height = peakheight / rand1 * Math.Sin((float)x / flatness * rand1 + rand1);
                 height += peakheight / rand2 * Math.Sin((float)x / flatness * rand2 + rand2);
                 height += peakheight / rand3 * Math.Sin((float)x / flatness * rand3 + rand3);
                 height += offset;
                 _terrainContour[x] = (int)height;
+                
+                // find the highest point in the mountens
+                // the lowest number in the array
+                if (height < minHeight)
+                {
+                    minHeight = height;
+                }
             }
+            // set the snow level
+            _snowHeight = 1.5 * minHeight;
         }
 
         private void SetUpPlayers()
@@ -99,9 +110,9 @@ namespace YaminGame.Scenes
             _carriages = new Carriage[NumberOfPlayers];
             for (var i = 0; i < NumberOfPlayers; i++)
             {
-                _carriages[i] = new Carriage(game, i)
+                _carriages[i] = new Carriage(_game, i)
                 {
-                    Position = new Vector2 {X = Game1.screenWidth/(NumberOfPlayers + 1)*(i + 1)}
+                    Position = new Vector2 {X = Game1.ScreenWidth/(NumberOfPlayers + 1)*(i + 1)}
                 };
                 _carriages[i].Position.Y = _terrainContour[(int)_carriages[i].Position.X];
             }
@@ -117,21 +128,28 @@ namespace YaminGame.Scenes
 
         private void CreateForeground()
         {
-            Color[,] groundColors = Utils.TextureTo2DArray(_textureCenter.GroundTexture);
-            Color[] foregroundColors = new Color[Game1.screenWidth * Game1.screenHeight];
+            var groundColors = Utils.TextureTo2DArray(_textureCenter.GroundTexture);
+            var foregroundColors = new Color[Game1.ScreenWidth * Game1.ScreenHeight];
 
-            for (int x = 0; x < Game1.screenWidth; x++)
+            for (var x = 0; x < Game1.ScreenWidth; x++)
             {
-                for (int y = 0; y < Game1.screenHeight; y++)
+                for (var y = 0; y < Game1.ScreenHeight; y++)
                 {
                     if (y > _terrainContour[x])
-                        foregroundColors[x + y * Game1.screenWidth] = groundColors[x % _textureCenter.GroundTexture.Width, y % _textureCenter.GroundTexture.Height];
+                        // add snow at the top of the mountain
+                        if (y < _snowHeight)
+                        {
+                            foregroundColors[x + y * Game1.ScreenWidth] = _textureCenter.SnowColors[x % _textureCenter.SnowTexture.Width, y % _textureCenter.SnowTexture.Height];
+                            //Debug.WriteLine("CreateForeground: y:" + y + " snowHeight: " + snowHeight);
+                        }
+                        else foregroundColors[x + y * Game1.ScreenWidth] = groundColors[x % _textureCenter.GroundTexture.Width, y % _textureCenter.GroundTexture.Height]; 
+                            
                     else
-                        foregroundColors[x + y * Game1.screenWidth] = Color.Transparent;
+                        foregroundColors[x + y * Game1.ScreenWidth] = Color.Transparent;
                 }
             }
 
-            _textureCenter.ForegroundTexture = new Texture2D(Device, Game1.screenWidth, Game1.screenHeight, false, SurfaceFormat.Color);
+            _textureCenter.ForegroundTexture = new Texture2D(Device, Game1.ScreenWidth, Game1.ScreenHeight, false, SurfaceFormat.Color);
             _textureCenter.ForegroundTexture.SetData(foregroundColors);
 
             _textureCenter.ForegroundColorArray = Utils.TextureTo2DArray(_textureCenter.ForegroundTexture);
@@ -139,17 +157,16 @@ namespace YaminGame.Scenes
 
         public override void Update(GameTime gameTime)
         {
-            //if (test)
-            //{
-            //    Debug.WriteLine("Scene1 update");
-            //    test = false;
-            //}
-
             // for managing the scenes
+            var keyState = Keyboard.GetState();
+            if (keyState.IsKeyDown(Keys.J))
+            {
+                _showEndScene();
+            }
             if (_endScene)
             {
-                timeElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
-                if (timeElapsed > timeToUpdate)
+                _timeElapsed += (float)gameTime.ElapsedGameTime.TotalSeconds;
+                if (_timeElapsed > TimeToUpdate)
                     State = 1;
                 return;
             }
@@ -162,6 +179,7 @@ namespace YaminGame.Scenes
             {
                 var terrainCollisionPoint = _rocket.CheckTerrainCollision(gameTime, _textureCenter.ForegroundColorArray);
                 var playerCollisionPoint = CheckPlayersCollision();
+                CheckBirdsCollision(gameTime);
 
                 if (terrainCollisionPoint.X > -1)
                 {
@@ -206,6 +224,16 @@ namespace YaminGame.Scenes
             CreateForeground();
         }
 
+        private void CheckBirdsCollision(GameTime gameTime)
+        {
+            foreach (var bird in _birds)
+            {
+                var birdCollisionPoint = bird.CheckBirdCollision(_rocket);
+                if (!(birdCollisionPoint.X > -1)) continue;
+                SoundCenter.HitBird.Play();
+                _explosion.AddExplosion(birdCollisionPoint, birdExplosionParticles, birdExplosionSize, birdExplosionMaxAge, gameTime);
+            }
+        }
 
         private Vector2 CheckPlayersCollision()
         {
@@ -245,7 +273,7 @@ namespace YaminGame.Scenes
                     var screenX = (int)screenPos.X;
                     var screenY = (int)screenPos.Y;
 
-                    if ((screenX) <= 0 || (screenX >= Game1.screenWidth)) 
+                    if ((screenX) <= 0 || (screenX >= Game1.ScreenWidth)) 
                         continue;
                         
                     if (_terrainContour[screenX] < screenY)
@@ -297,13 +325,27 @@ namespace YaminGame.Scenes
 
         private void NextPlayer()
         {
+            NewRound = true;
             CurrentPlayer = CurrentPlayer + 1;
             CurrentPlayer = CurrentPlayer % NumberOfPlayers;
             while (!_carriages[CurrentPlayer].IsAlive)
                 CurrentPlayer = ++CurrentPlayer % NumberOfPlayers;
             _rocket.Color = _carriages[CurrentPlayer].Color;
-            Debug.WriteLine("NextPlayer: " + CurrentPlayer);
-
+            //Debug.WriteLine("NextPlayer: " + CurrentPlayer);
+            var count = 0;
+            for (var index = 0; index < _carriages.Length; index++)
+            {
+                var carriage = _carriages[index];
+                
+                // set the victury text in case this player won the game
+                if (!carriage.IsAlive) continue;
+                count++;
+                _endText = "The " + carriage.ColorName+ " Player number" + (index + 1) + " won the game";
+            }
+            if (count < 2)
+            {
+                _showEndScene();
+            }
         }
 
         private void _showEndScene()
@@ -320,8 +362,8 @@ namespace YaminGame.Scenes
 
         public override void Draw(GameTime gameTime)
         {
-            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
-            var screenRectangle = new Rectangle(0, 0, Game1.screenWidth, Game1.screenHeight);
+            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.GlobalTransformation);
+            var screenRectangle = new Rectangle(0, 0, Game1.ScreenWidth, Game1.ScreenHeight);
             // Draw Scenery
             SpriteBatch.Draw(_textureCenter.BackgroundTexture, screenRectangle, Color.White);
             SpriteBatch.Draw(_textureCenter.ForegroundTexture, screenRectangle, Color.White);
@@ -329,7 +371,9 @@ namespace YaminGame.Scenes
 
             if (_endScene)
             {
-                SpriteBatch.DrawString(Font, _endText, new Vector2(Game1.screenWidth / 2, Game1.screenHeight / 2), Color.Blue, 0, _textSize, 2.0f, SpriteEffects.None, 0.5f);
+                SpriteBatch.DrawString(Font, _endText,
+                    new Vector2(Game1.ScreenWidth/2 , Game1.ScreenHeight/2 - _textSize.Y),
+                    _carriages[CurrentPlayer].Color, 0, _textSize, 1.5f, SpriteEffects.None, 0.5f);
             }
             SpriteBatch.End();
             base.Draw(gameTime);

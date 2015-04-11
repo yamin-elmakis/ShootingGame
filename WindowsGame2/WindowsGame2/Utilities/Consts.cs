@@ -7,14 +7,13 @@ namespace YaminGame.Utilities
 {
     public class Consts
     {
-        public static int GoalYline = 40;
-        public static string GameHelp = "\nPlayer 1 is yoda " +
-                                        "\n    he moves with the arrows, " +
+        public static string GameHelp = "\nShooting Game " +
+                                        "\n    aim yout cannon with thr arrows, " +
                                         "\n    left arrow for left, right arrow for right. " +
-                                        "\nPlayer 2 is darth vader " +
-                                        "\n    he moves with the letters 'A' and 'D', " +
-                                        "\n    'A' for left, 'D' for right." +
-                                        "\nPress ENTER to start the game." +
-                                        "\npress SPACE to jump to scence 2.";
+                                        "\n    adjust the shooting power with the arrows " +
+                                        "\n    up arrow to power up and down arrow to power down " +
+                                        "\nScene 2 have a random wind" +
+                                        "\nPress S to start the game." +
+                                        "\npress J to jump to scence 2.";
     }
 }

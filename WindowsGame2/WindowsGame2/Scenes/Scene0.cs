@@ -1,9 +1,4 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using WindowsGame2;
-using Game.Scenes;
+﻿using WindowsGame2;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using Microsoft.Xna.Framework.Input;
@@ -13,19 +8,15 @@ namespace YaminGame.Scenes
 {
     class Scene0 : Scene
     {
-        private Microsoft.Xna.Framework.Game game;
-        private SoundCenter soundCenter;
-        private SpriteBatch spriteBatch;
-        private SpriteFont font;
+        private readonly SpriteBatch _spriteBatch;
+        private readonly SpriteFont _font;
 
         public override int State { get; set; }
 
         public Scene0(Microsoft.Xna.Framework.Game game) : base(game)
         {
-            this.game = game;
-            spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
-            soundCenter = (SoundCenter)game.Services.GetService(typeof(SoundCenter));
-            font = (SpriteFont)game.Services.GetService(typeof(SpriteFont)); 
+            _spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
+            _font = (SpriteFont)game.Services.GetService(typeof(SpriteFont)); 
             _initialize();
         }
 
@@ -33,7 +24,11 @@ namespace YaminGame.Scenes
         {
             var keyState = Keyboard.GetState();
             
-            if (keyState.IsKeyDown(Keys.Enter))
+            if (keyState.IsKeyDown(Keys.S))
+            {
+                State = 1;
+            }
+            if (keyState.IsKeyDown(Keys.J))
             {
                 State = 1;
             }
@@ -47,9 +42,9 @@ namespace YaminGame.Scenes
 
         public override void Draw(GameTime gameTime)
         {
-            spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
-            spriteBatch.DrawString(font, Consts.GameHelp, new Vector2(5, 5), Color.Red);
-            spriteBatch.End();
+            _spriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.GlobalTransformation);
+            _spriteBatch.DrawString(_font, Consts.GameHelp, new Vector2(5, 5), Color.Red);
+            _spriteBatch.End();
             base.Draw(gameTime);
         }
     }

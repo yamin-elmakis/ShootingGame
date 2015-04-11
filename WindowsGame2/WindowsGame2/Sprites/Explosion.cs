@@ -1,10 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using WindowsGame2;
-using Game.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
 using YaminGame.Utilities;
@@ -21,26 +17,18 @@ namespace YaminGame.Sprites
         
         public Explosion(Microsoft.Xna.Framework.Game game) : base(game)
         {
-            this._game = game;
+            _game = game;
             SpriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
             _textureCenter = (TextureCenter)game.Services.GetService(typeof(TextureCenter));
             ParticleList = new List<ParticleData>();
-        }
-
-        protected override void Dispose(bool disposing)
-        {
-            base.Dispose(disposing);
         }
 
         public override void Update(GameTime gameTime)
         {
             for (var i = ParticleList.Count - 1; i >= 0; i--)
             {
-                var particle = ParticleList[i];
-                if (!UpdateParticle(gameTime, particle))
-                {
+                if (!UpdateParticle(gameTime, ParticleList[i]))
                     ParticleList.RemoveAt(i);
-                }
             }
             base.Update(gameTime);
         }
@@ -76,7 +64,7 @@ namespace YaminGame.Sprites
 
         public override void Draw(GameTime gameTime)
         {
-            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, null, null, null, null, Game1.globalTransformation);
+            SpriteBatch.Begin(SpriteSortMode.Deferred, BlendState.Additive, null, null, null, null, Game1.GlobalTransformation);
             foreach (var particle in ParticleList)
             {
                 SpriteBatch.Draw(_textureCenter.ExplosionTexture, particle.Position, null, particle.ModColor, particle.Rotation, new Vector2(256, 256), particle.Scaling, SpriteEffects.None, 1);
@@ -100,7 +88,7 @@ namespace YaminGame.Sprites
         {
             Scaling = 0.25f;
             ModColor = Color.White;
-            this.Rotation = rotation;
+            Rotation = rotation;
             BirthTime = (float)gameTime.TotalGameTime.TotalMilliseconds;
             MaxAge = maxAge;
             OrginalPosition = explosionPos;

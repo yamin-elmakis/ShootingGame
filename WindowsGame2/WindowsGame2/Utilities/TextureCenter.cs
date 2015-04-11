@@ -5,7 +5,6 @@ namespace YaminGame.Utilities
 {
     class TextureCenter
     {
-        private Microsoft.Xna.Framework.Game _game;
         public Texture2D CarriageTexture { get; private set; }
         public Texture2D CannonTexture { get; private set; }
         public Color[,] CarriageColorArray { get; private set; }
@@ -21,23 +20,26 @@ namespace YaminGame.Utilities
         public Texture2D GroundTexture { get; private set; }
         public Texture2D BirdSprite { get; private set; }
         public Color[,] BirdColorArray { get; set; }
+        public Texture2D SnowTexture { get; set; }
+        public Color[,] SnowColors { get; set; }
 
         public TextureCenter(Microsoft.Xna.Framework.Game game)
         {
-            this._game = game;
             CarriageTexture = game.Content.Load<Texture2D>("carriage");
             CannonTexture = game.Content.Load<Texture2D>("cannon");
             CarriageColorArray = Utils.TextureTo2DArray(CarriageTexture);
             CannonColorArray = Utils.TextureTo2DArray(CannonTexture);
             ExplosionTexture = game.Content.Load<Texture2D>("explosion");
+            SnowTexture = game.Content.Load<Texture2D>("snow");
+            SnowColors = Utils.TextureTo2DArray(SnowTexture);
             ExplosionColorArray = Utils.TextureTo2DArray(ExplosionTexture);
             RocketTexture = game.Content.Load<Texture2D>("rocket");
             SmokeTexture = game.Content.Load<Texture2D>("smoke");
             RocketColorArray = Utils.TextureTo2DArray(RocketTexture);
             BackgroundTexture = game.Content.Load<Texture2D>("background");
             GroundTexture = game.Content.Load<Texture2D>("ground");
-            BirdSprite = game.Content.Load<Texture2D>("dragon-ltr-sprite-sm");
-
+            BirdSprite = game.Content.Load<Texture2D>("bird");
+            BirdColorArray = Utils.TextureTo2DArray(BirdSprite);
         }
     }
 }

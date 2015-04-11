@@ -1,62 +1,67 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Diagnostics;
-using System.Linq;
-using System.Text;
 using WindowsGame2;
-using Game.Sprites;
 using Microsoft.Xna.Framework;
 using Microsoft.Xna.Framework.Graphics;
-using Microsoft.Xna.Framework.Media;
 using YaminGame.Scenes;
 using YaminGame.Sprites;
-using YaminGame.Utilities;
 
 namespace Game.Scenes
 {
     internal class Scene2 : Scene1
     {
-        private Rocket _rocket;
         private float timeElapsed, timeToUpdate = 0.2f;
+        private readonly Random _randomizer = new Random();
+        private float wind;
+        private bool setWind = false;
 
-        public Scene2(Microsoft.Xna.Framework.Game game, GraphicsDevice device)
-            : base(game, device)
+        public Scene2(Microsoft.Xna.Framework.Game game, GraphicsDevice device): base(game, device)
         {
-            //this.game = game;
-            //this.screenHeight = screenHeight;
-            //this.screenWidth = screenWidth;
-            //back = game.Content.Load<Texture2D>("hockey_ice");
-            //spriteBatch = (SpriteBatch)game.Services.GetService(typeof(SpriteBatch));
-            //soundCenter = (SoundCenter)game.Services.GetService(typeof(SoundCenter));
-            //font = (SpriteFont)game.Services.GetService(typeof(SpriteFont));
-            //Particle = new Particle(game);
-            _rocket = new Rocket(game);
-            SceneComponents.Add(_rocket);
-            _initialize();
+            timeElapsed = 0;
+            State = 0;
+            _rocket.MaxX = Game1.ScreenWidth*2;
+            _rocket.MinX = -Game1.ScreenWidth;
+            Debug.WriteLine("Scene2 constarcot end!");
+        }
+
+        private void SetWind()
+        {
+            wind = (float)_randomizer.NextDouble();
+            wind -= 0.9f;
+            _rocket.Gravity.X = wind;
         }
 
         public override void Update(GameTime gameTime)
         {
             timeElapsed += (float)
                 gameTime.ElapsedGameTime.TotalSeconds;
-            Debug.WriteLine("time: " + timeElapsed);
-            
+            //Debug.WriteLine("time: " + timeElapsed);
+            if (NewRound)
+            {
+                NewRound = false;
+                SetWind();
+            }
             base.Update(gameTime);
         }
 
-        private void _initialize()
+        private void DrawWindText()
         {
-            timeElapsed = 0;
-            State = 0;
+            var player = _carriages[CurrentPlayer];
+            var windText = "Wind: ";
+            if (wind.Equals(0.0f))
+                windText += "0";
+            else
+                windText += wind > 0 ? " --> " + wind.ToString("0.00") : " <-- " + (-wind).ToString("0.00");
+            SpriteBatch.DrawString(Font, windText, new Vector2(20, 70), player.Color);
         }
 
         public override void Draw(GameTime gameTime)
         {
-            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.globalTransformation);
-            //var screenRectangle = new Rectangle(0, 0, screenWidth, screenHeight);
-            //spriteBatch.Draw(back, screenRectangle, Color.White);
-            SpriteBatch.End();
             base.Draw(gameTime);
+            SpriteBatch.Begin(SpriteSortMode.Immediate, BlendState.AlphaBlend, null, null, null, null, Game1.GlobalTransformation);
+            DrawWindText();
+            SpriteBatch.End();
+            
         }
     }
 }
